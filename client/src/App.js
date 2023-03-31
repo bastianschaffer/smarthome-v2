@@ -4,20 +4,15 @@ import './App.css'
 
 //export const btnTypes = {led : "led", light: "light"}
 
-export function postMsg(btnTitle){
-    //var request = new XMLHttpRequest();
-    //request.open("POST", "/click")
-    //request.data = "test";
-    //request.send("someData");
+export function postMsg(msgType, content){
+    
 
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: btnTitle })
+        body: JSON.stringify({ msgType: msgType, content: content })
     };
     fetch('/click', requestOptions)
-        //.then(response => response.json())
-        //.then(data => this.setState({ postId: data.id }));
 }
 
 function App() {
@@ -48,9 +43,6 @@ function App() {
         ).then(
             buttonList => {
                 setButtonList(buttonList)
-                //console.log(data)
-                //cnsole.log(data)
-                   
             }
         )
 

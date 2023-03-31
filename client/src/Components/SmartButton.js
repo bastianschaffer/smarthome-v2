@@ -25,7 +25,7 @@ function endBtnTouch(btnTitle){
   pressingButton = false;
   if(!pressedButton){
     console.log("click event");
-    postMsg(btnTitle);
+    postMsg("click", {"btnTitle: " : btnTitle});
   }
   pressedButton = false;
   clearInterval(intervalId);
@@ -41,7 +41,7 @@ function SmartButton({_title, _btnType}) {
 
       <button className='smartBtn'  onPointerDown={() => startBtnTouch(setOpenSettings, _btnType)} onPointerUp={() => endBtnTouch(_title)}>{_title}</button>
                    
-      {openSettings && <ButtonSettings setOpenSettings={setOpenSettings}/>}
+      {openSettings && <ButtonSettings setOpenSettings={setOpenSettings} loadedSelectedAnim={"Animation 2"}/>}
     </div>
   )
 }
