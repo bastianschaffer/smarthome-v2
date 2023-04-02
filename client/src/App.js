@@ -2,11 +2,7 @@ import React, {useState, useEffect} from 'react'
 import SmartButton from './Components/SmartButton'
 import './App.css'
 
-//export const btnTypes = {led : "led", light: "light"}
-
 export function postMsg(msgType, content){
-    
-
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -15,50 +11,48 @@ export function postMsg(msgType, content){
     fetch('/click', requestOptions)
 }
 
+function createPresetButton(setButtonList){
+    setButtonList(bl => [...bl, {title :  "preset" + bl.length, type : "preset", "toggledButtons" : []}]);
+    
+    //TODO make preset directly store the buttons and send to python
+
+}
+
 function App() {
-
-
-    const [data, setData] = useState([{}])
-
     const [buttonList, setButtonList] = useState([{}])
-
-
-    useEffect(() => {
-        fetch("/members").then(
-            res => res.json()
-        ).then(
-            data => {
-                setData(data)
-                console.log(data)
-                console.log(data)
-                   
-            }
-        )
-
-    }, [])
 
     useEffect(() => {
         fetch("/buttons").then(
             res => res.json()
         ).then(
-            buttonList => {
-                setButtonList(buttonList)
+            fetchedButtonList => {
+                setButtonList(fetchedButtonList.buttons.map(b => ({...b, openedSettings : false})));
             }
         )
 
     }, [])
 
+    
+
     return (
         <div className='mainPage'>
-            someText
-            {(typeof buttonList.buttons === 'undefined') ? (
-                <p>Loading...</p>
-            ) : (
-                buttonList.buttons.map((button, i) =>(
-                    //<p key={i}>{button.title}</p>
-                    <SmartButton key={i} _title={button.title} _btnType={button.type}/>
-                ))
-            )}
+            <h1 className='mainHeader'> Schlaues Heim </h1>
+            <div className='btnList'>
+                <div className='buttonList'>
+                    {(typeof buttonList === 'undefined') ? 
+                        (<p>Loading...</p>) : 
+                        (buttonList.filter(b => b.type !== "preset")
+                                    .map((b, i) => (<SmartButton key={i} buttonObj={b} setButtonList={setButtonList} />)))
+                    }
+                </div>
+                <div className='presetList'>
+                    {buttonList.filter(b => b.type === "preset")
+                                .map((b, i) => (<SmartButton key={i} buttonObj={b} setButtonList={setButtonList}  />))}
+                </div>
+
+            <hr className='bottomLine'/>
+            <button onClick={() => createPresetButton(setButtonList)}> Create Preset </button>
+            </div>  
             
         </div>
         

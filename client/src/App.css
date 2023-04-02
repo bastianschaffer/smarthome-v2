@@ -1,5 +1,37 @@
 .mainPage {
   text-align: center;
+  color: white;
+  display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+.mainHeader{
+  letter-spacing: 5px;
+  color: #ffffff;
+  backdrop-filter: blur(10px);
+  height: 75px;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+    background-position: center;
+    border-radius: 20px;
+
+    backdrop-filter: blur(10px);
+    background: rgba(12, 8, 29, 0.4);;
+    box-shadow: 0 0 2px 2px #25252500;
+}
+
+.bottomLine{
+  height: 4px;
+  background-color: rgba(0, 0, 0, 0.404);
+  backdrop-filter: blur(10px);
+  border: 0;
+  width: 140px;
 }
 
 
