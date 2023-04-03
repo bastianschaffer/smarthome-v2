@@ -8,7 +8,7 @@ def members():
 
 @app.route("/buttons")
 def buttons():
-    return {"buttons" : [{"title" : "led1", "type" : "led", "toggled" : False, "selectedAnim" : "Animation 1"}, {"title" : "led2", "type" : "led", "toggled" : False, "selectedAnim" : "Animation 2"}, {"title" : "light 1", "type" : "light", "toggled" : False},
+    return {"buttons" : [{"title" : "led1", "type" : "led", "toggled" : False, "selectedAnim" : "Animation 1", "selectedColor" : "#ffffff"}, {"title" : "led2", "type" : "led", "toggled" : False, "selectedAnim" : "Animation 2", "selectedColor" : "#ffffff"}, {"title" : "light 1", "type" : "light", "toggled" : False},
                          {"title" : "preset1", "type": "preset", "toggled" : False, "toggledButtons" : ["led1", "light 1"]}]}
 
 @app.route("/animations")

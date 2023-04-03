@@ -5,22 +5,13 @@ import './ButtonSettings.css'
 
 
 
-function handleSelectedAnimChange(buttonObj, setButtonList, newAnim) {
-  //setSelectedAnim(newAnim);
-  setButtonList(bl => bl.map(b => (b ===buttonObj ? {...b, selectedAnim: newAnim} : b)))
-  postMsg("selectAnimRuntime", {"animTitle" : newAnim});
-}
 
-function handleConfirmAnim(selectedAnim, buttonObj, setButtonList){
-  postMsg("confirmAnim", {"animTitle" : selectedAnim});
-  setButtonList(bl => bl.map(b => b === buttonObj ? {...b, openedSettings: false} : b));
-}
 
 
 function ButtonSettings({buttonObj, setButtonList}) {
   const [animationList, setAnimationList] = useState([{}])
-  //const [selectedAnim, setSelectedAnim] = useState(loadedSelectedAnim)
-
+  const [selectedAnim, setSelectedAnim] = useState(buttonObj.selectedAnim);
+  const [selectedColor, setSelectedColor] = useState(buttonObj.selectedColor)
 
   useEffect(() => {
     fetch("/animations").then(
@@ -33,12 +24,24 @@ function ButtonSettings({buttonObj, setButtonList}) {
   
   }, [])
 
-
-  function handleColorPickerUpdate(newColor){
-    console.log("color change | " + newColor.h + ", " + newColor.v)
+  function handleSelectedAnimChange(event) {
+    //setButtonList(bl => bl.map(b => (b ===buttonObj ? {...b, selectedAnim: newAnim} : b)))
+    var newAnim = event.target.value;
+    setSelectedAnim(newAnim);
+    postMsg("selectAnimRuntime", {"animTitle" : newAnim});
+  }
+  
+  function handleConfirmAnim(){
+    postMsg("confirmAnim", {"animTitle" : selectedAnim});
+    setButtonList(bl => bl.map(b => b === buttonObj ? {...b, openedSettings: false, selectedAnim: selectedAnim, selectedColor: selectedColor } : b));
   }
 
-  const selectedAnim = buttonObj.selectedAnim;
+
+  function handleColorPickerUpdate(newColor){
+    setSelectedColor(newColor);
+    console.log("color change | " + newColor);
+  }
+
 
   return (
     <div className="buttonSettingsContainer">
@@ -48,7 +51,7 @@ function ButtonSettings({buttonObj, setButtonList}) {
         </div>
         <div className='body'>
           
-          <select value={selectedAnim} onChange={e => handleSelectedAnimChange(buttonObj, setButtonList, e.target.value)}> 
+          <select value={selectedAnim} onChange={handleSelectedAnimChange}> 
            
             <option value = {selectedAnim} >{selectedAnim}</option>
 
@@ -59,14 +62,14 @@ function ButtonSettings({buttonObj, setButtonList}) {
               
               }
           </select>
-          {selectedAnim === "colorpicker" && <ColorPicker handleChange={handleColorPickerUpdate}></ColorPicker>}
+          {selectedAnim === "colorpicker" && <ColorPicker buttonObj={buttonObj} handleChange={handleColorPickerUpdate}></ColorPicker>}
           
         </div>
         <div className='footer'>
-          <button onClick={() => setButtonList(bl => bl.map(b => b === buttonObj ? {...b, openedSettings: false} : b))}>
+          <button className='cancelBtn' onClick={() => setButtonList(bl => bl.map(b => b === buttonObj ? {...b, openedSettings: false} : b))}>
             Cancel 
           </button>
-          <button onClick={() => handleConfirmAnim(selectedAnim, buttonObj, setButtonList)}> Confirm </button>
+          <button className='confirmBtn' onClick={() => handleConfirmAnim()}> Confirm </button>
         </div>
     </div>
     

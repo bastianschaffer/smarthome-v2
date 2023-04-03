@@ -2,9 +2,36 @@
     
     width: 300px;
     background-position: center;
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(0, 0, 0, 0.363);
     border-radius: 20px;
     flex: 1;
     backdrop-filter: blur(10px);
     color: white;
+}
+
+.footer{
+    margin-top: 20px;
+}
+
+.footer button{
+    width: 80px;
+    height: 20px;
+    font-size: 15px;
+    cursor: pointer;
+    color: white;
+    margin: 10px;
+    text-align:center;
+    border: none;
+    background-size: 300% 100%;
+    border-radius: 3px;
+    backdrop-filter: blur(10px);
+  letter-spacing: 2px;
+}
+
+.confirmBtn{
+    background: rgba(87, 167, 71, 0.8);
+}
+
+.cancelBtn{
+    background: rgba(255, 78, 78, 0.8);
 }

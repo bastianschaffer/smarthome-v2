@@ -1,35 +1,76 @@
 import React, {useEffect, useState} from 'react'
 import Wheel from '@uiw/react-color-wheel'
 import './ColorPicker.css'
+import { hexToHsva, hsvaToHex} from '@uiw/color-convert';
+import Slider from 'rc-slider';
+import 'rc-slider/assets/index.css';
 
 
-function handleValueChange({setValue, hsva, setHsva, handleChange}, newVal){
-    hsva.v = newVal;
-    var newColor = { h: hsva.h, s: hsva.s, v: newVal, a: hsva.a};
-    setHsva(newColor);
-    setValue(newVal);
-    handleChange(newColor);
-}
 
-function ColorPicker({handleChange}) {
-    const [value, setValue] = useState(100);
+function ColorPicker({buttonObj, handleChange}) {
+    const [value, setValue] = useState(hexToHsva(buttonObj.selectedColor).v);
 
-    const [hsva, setHsva] = useState({ h: 0, s: 0, v: 100, a: 0 });
-    
+    const [wheelColor, setWheelColor] = useState(hsvaToHex({...hexToHsva(buttonObj.selectedColor), v: 100}));
 
+    function handleValueChange(newVal){
+      //var newVal = event.target.value
+      var newColor = hsvaToHex({...hexToHsva(wheelColor), v: newVal});
+      
+      setValue(newVal);
+      handleChange(newColor);
+  }
+
+  const sliderBackground ={
+    width: "200px",
+    background:  ("linear-gradient(90deg, #000000,"+ wheelColor + " )"), 
+    marginTop: "10px",
+    borderStyle: "solid",
+    borderColor: "rgba(255, 255, 255, 1)",
+    borderRadius: "5px",
+    borderWidth: "1px"
+  }
+  
   return (
-    <div  >ColorPicker
+    <div  className='mainContainer' >ColorPicker
 
+      {console.log("init color: " + buttonObj.selectedColor.h+ ", " + buttonObj.selectedColor.v) }
     <Wheel className="colorWheel"
-      color={hsva}
+      color={wheelColor}
       onChange={(color) => {
-        handleChange(color.hsva);
-        setHsva(color.hsva);
+        handleChange(color.hex);
+        setWheelColor(color.hex);
       }}
     />
 
-    <div className="slidecontainer">
-        <input type="range" min={1} max={100}  value={value} onChange={(v) => handleValueChange({setValue, hsva, setHsva, handleChange}, v.target.value)}/>
+    <div className="sliderContainer" style={sliderBackground}>
+        {/*<input  className="valueSlider" type="range" min={1} max={100}  value={value} onChange={handleValueChange}  />*/}
+        
+        <Slider
+          
+          onChange={(nextValues) => {
+            console.log('Change:', nextValues);
+            handleValueChange(nextValues);
+          }}
+          
+
+          min={0}
+          max={100}
+          defaultValue={value}
+          step={1}
+
+          railStyle={{ backgroundColor: 'rgba(255, 0, 0, 0)' }}
+          trackStyle={{ backgroundColor: 'rgba(0, 255, 0, 0)' }}
+          handleStyle={{
+          borderColor: 'rgba(255, 255, 255, 1)',
+          height: 28,
+          width: 28,
+          marginTop: "-12px",
+          opacity: 1,
+          backgroundColor: hsvaToHex({...hexToHsva(wheelColor), v: value}),
+          boxShadow: "0px 2px 2px rgba(0, 0, 0, 0)"
+        }}
+        />
+
     </div>
 
     

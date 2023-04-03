@@ -1,3 +1,8 @@
-.colorWheel{
-    margin-left: calc(50% - 100px);
+
+.mainContainer{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
+
