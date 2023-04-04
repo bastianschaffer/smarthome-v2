@@ -23,22 +23,46 @@ function ButtonSettings({buttonObj, setButtonList}) {
   
   }, [])
 
-  function handleSelectedAnimChange(newObj) {
-    //setButtonList(bl => bl.map(b => (b ===buttonObj ? {...b, selectedAnim: newAnim} : b)))
-    //var newAnim = event.target.value;
+  function postSelectedAnim(anim){
+
+    postMsg("setAnim",  {"btnTitle" : buttonObj.title, 
+                        "animTitle" : anim,
+                        ...(anim === "colorpicker" && { selectedColor: selectedColor })});
+  }
+
+   function handleSelectedAnimChange(newObj) {
     setSelectedAnim(newObj);
-    postMsg("selectAnimRuntime", {"animTitle" : newObj.value});
+    postSelectedAnim(newObj.value);
+  }
+
+  function togglePresetIfChanged(){
+    setButtonList(bl => bl.map(b => {
+      if(b.type === "preset" && b.toggled){
+        var tb = b.toggledButtons.find(x => x.title === buttonObj.title);
+        if(tb !== undefined){
+          postMsg("specialTogglePreset", {"title" : b.title});
+          return buttonObj === tb ? b : {...b, toggled: false};
+        }
+      }
+      return b;
+    }));
   }
   
   function handleConfirmAnim(){
-    postMsg("confirmAnim", {"animTitle" : selectedAnim.value});
     setButtonList(bl => bl.map(b => b === buttonObj ? {...b, openedSettings: false, selectedAnim: selectedAnim.value, selectedColor: selectedColor } : b));
+
+    togglePresetIfChanged();
   }
 
 
   function handleColorPickerUpdate(newColor){
     setSelectedColor(newColor);
-    console.log("color change | " + newColor);
+    postSelectedAnim(selectedAnim.value);
+  }
+
+  function handleCancelBtn(){
+    setButtonList(bl => bl.map(b => b === buttonObj ? {...b, openedSettings: false} : b));
+    postSelectedAnim(buttonObj.selectedAnim);
   }
 
 
@@ -49,7 +73,6 @@ function ButtonSettings({buttonObj, setButtonList}) {
             <h1> {buttonObj.title} </h1>
         </div>
         <div className='animSelectionDiv'>
-          {console.log("renering selected anim: " + selectedAnim.value)}
           { !(typeof animationList.animations === 'undefined') &&
           <Select className='animSelect' isSearchable={false} name="test" value={selectedAnim}  defaultValue={selectedAnim} 
             onChange={handleSelectedAnimChange} options={animationList.animations.map(a => ({value: a.title, label: a.title}))}
@@ -99,7 +122,7 @@ function ButtonSettings({buttonObj, setButtonList}) {
           
         </div>
         <div className='footer'>
-          <button className='cancelBtn' onClick={() => setButtonList(bl => bl.map(b => b === buttonObj ? {...b, openedSettings: false} : b))}>
+          <button className='cancelBtn' onClick={() => handleCancelBtn()}>
             Cancel 
           </button>
           <button className='confirmBtn' onClick={() => handleConfirmAnim()}> Confirm </button>

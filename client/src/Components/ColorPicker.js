@@ -13,7 +13,6 @@ function ColorPicker({buttonObj, handleChange}) {
     const [wheelColor, setWheelColor] = useState(hsvaToHex({...hexToHsva(buttonObj.selectedColor), v: 100}));
 
     function handleValueChange(newVal){
-      //var newVal = event.target.value
       var newColor = hsvaToHex({...hexToHsva(wheelColor), v: newVal});
       
       setValue(newVal);
@@ -33,7 +32,6 @@ function ColorPicker({buttonObj, handleChange}) {
   return (
     <div  className='mainContainer' >
 
-      {console.log("init color: " + buttonObj.selectedColor.h+ ", " + buttonObj.selectedColor.v) }
     <Wheel className="colorWheel"
       color={wheelColor}
       onChange={(color) => {
@@ -48,7 +46,6 @@ function ColorPicker({buttonObj, handleChange}) {
         <Slider
           
           onChange={(nextValues) => {
-            console.log('Change:', nextValues);
             handleValueChange(nextValues);
           }}
           

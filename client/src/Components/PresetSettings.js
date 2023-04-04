@@ -1,4 +1,5 @@
 import React, {useState} from 'react'
+import { postMsg } from '../App';
 import './ButtonSettings'
 
 
@@ -10,7 +11,13 @@ function PresetSettings({buttonObj, setButtonList}) {
    }
 
    function handleConfirm(){
-    setButtonList(bl => bl.map(b => b === buttonObj ? {...b, openedSettings: false, title: inputName} : b))
+    postMsg("renamePreset", {"title" : buttonObj.title, "newTitle" : inputName});
+    setButtonList(bl => bl.map(b => b === buttonObj ? {...b, openedSettings: false, title: inputName} : b));
+   }
+
+   function handleDeletePreset(){
+    setButtonList(bl => bl.filter(b => b !== buttonObj));
+    postMsg("deletePreset", {"title" : buttonObj.title});
    }
 
   return (
@@ -20,7 +27,7 @@ function PresetSettings({buttonObj, setButtonList}) {
         <div className='bottomButtons'> 
         </div>
         <div className='footer'>
-          <button className='cancelBtn' onClick={() => setButtonList(bl => bl.filter(b => b !== buttonObj))}> Delete </button>
+          <button className='cancelBtn' onClick={() => handleDeletePreset()}> Delete </button>
           
           <button className='confirmBtn' onClick={() => handleConfirm()}>
             Confirm</button>

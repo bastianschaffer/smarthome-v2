@@ -38,9 +38,10 @@ function SmartButton({buttonObj, setButtonList}) {
         setButtonList(bl => bl.map(b => ({...b, toggled: false})));
       }
       else{
-        setButtonList(bl => bl.map(b => 
-          ((buttonObj.toggledButtons.includes(b.title) || buttonObj === b) ?  
-            {...b, toggled: true} : {...b, toggled: false})));
+        setButtonList(bl => bl.map(b => {
+          var tb = buttonObj.toggledButtons.find(x => x.title === b.title);
+          return tb !== undefined ? tb : (b.title === buttonObj.title ? {...b, toggled: true} : {...b, toggled: false})
+        }));
       }
     }
     else{
@@ -53,7 +54,7 @@ function SmartButton({buttonObj, setButtonList}) {
         return b;
       }));
     }  
-    postMsg("click", {"btnTitle: " : buttonObj.title});
+    postMsg("click", {"btnTitle" : buttonObj.title});
   }
   
   function endBtnTouch(){
