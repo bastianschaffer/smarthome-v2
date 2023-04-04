@@ -82,7 +82,7 @@ function SmartButton({buttonObj, setButtonList}) {
   return (
     <div className="smartButtonMain">
 
-      <button className='smartBtn' style={btnColor} onPointerDown={() => startBtnTouch()} 
+      <button className={buttonObj.toggled ? 'toggled' : "" }  onPointerDown={() => startBtnTouch()} 
               onPointerUp={() => endBtnTouch()}>{buttonObj.title}
       </button>
                    

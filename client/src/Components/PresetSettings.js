@@ -15,7 +15,6 @@ function PresetSettings({buttonObj, setButtonList}) {
 
   return (
     <div className='buttonSettingsContainer'>
-      <h3>Settings</h3>
       <input type="text" value={inputName} onChange={handleTitleChange} />
         {/* later maybe add timing functionality and alarm synchronization here */}
         <div className='bottomButtons'> 

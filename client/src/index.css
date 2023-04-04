@@ -11,13 +11,10 @@ body {
   background-image: url(forrest-cavale-qfmd9bu7IgA-unsplash.jpg);
   background-size: cover;
   backdrop-filter: blur(10px);
-  font-family: openSans ;
+  font-family: Arial ;
   height: 100vh;
   
 
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
+

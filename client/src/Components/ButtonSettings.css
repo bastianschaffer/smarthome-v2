@@ -1,5 +1,13 @@
+@font-face{
+    font-family: mainFont;
+    src: url("../OpenSans-Regular.ttf")
+  }
+
+  
+  
+
+
 .buttonSettingsContainer{
-    
     width: 300px;
     background-position: center;
     background: rgba(0, 0, 0, 0.363);
@@ -8,6 +16,8 @@
     backdrop-filter: blur(10px);
     color: white;
 }
+
+
 
 .footer{
     margin-top: 20px;
@@ -34,4 +44,34 @@
 
 .cancelBtn{
     background: rgba(255, 78, 78, 0.8);
+}
+
+
+.animSelectionDiv{
+    font-family: url("../OpenSans-Regular.ttf");
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+
+
+
+select {
+    color: rgb(255, 255, 255);
+    background: rgba(36, 36, 36, 0.814);
+    border-color: rgba(0, 0, 0, 0);
+    border-radius: 5px;
+    width: 200px;
+    height: 30px;
+    text-align: center;
+    font-size: 20px;
+}
+
+
+select:hover {
+    box-shadow: none;
+    background: rgba(75, 75, 75, 0.814);
 }

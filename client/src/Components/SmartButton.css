@@ -1,20 +1,51 @@
-.smartBtn{
+button{
     width: 160px;
     font-size: 16px;
     cursor: pointer;
     margin: 10px;
     height: 55px;
     text-align:center;
+    color: white;
     border: none;
     background-size: 300% 100%;
     border-radius: 10px;
     backdrop-filter: blur(10px);
   background: rgba(1, 1, 15, 0.8);
   letter-spacing: 2px;
-
-
 }
 
+button.toggled{
+  color:  rgb(255, 172, 111);
+  box-shadow : rgba(255, 158, 87, 0.8) 0px 0px 20px;
+}
+
+button.toggled:hover{
+  box-shadow : rgba(255, 158, 87, 0.8) 0px 0px 20px;
+}
+
+button:hover{
+  box-shadow:  0px 0px 5px rgb(0, 0, 0, 0.5);
+}
+
+input{
+  width: 200px;
+  height: 30px;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 10px;
+    text-align:center;
+    color: white;
+    border: none;
+    background-size: 300% 100%;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+  background: rgba(33, 33, 33, 0.818);
+  letter-spacing: 2px;
+}
+
+input:focus{
+  outline: none;
+}
 
 .smartButtonMain{
     display: flex;

@@ -36,7 +36,7 @@ function App() {
 
     return (
         <div className='mainPage'>
-            <h1 className='mainHeader'> Schlaues Heim </h1>
+            <h1 className='mainHeader'> Schlaues Heim 123 SlL s</h1>
             <div className='btnList'>
                 <div className='buttonList'>
                     {(typeof buttonList === 'undefined') ? 

@@ -31,7 +31,7 @@ function ColorPicker({buttonObj, handleChange}) {
   }
   
   return (
-    <div  className='mainContainer' >ColorPicker
+    <div  className='mainContainer' >
 
       {console.log("init color: " + buttonObj.selectedColor.h+ ", " + buttonObj.selectedColor.v) }
     <Wheel className="colorWheel"
