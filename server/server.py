@@ -21,10 +21,10 @@ def save_presets():
         json.dump(presets, file) 
 
 def load_presets(buttonList):
-    with open("server/savedPresets.json", "r") as file:
         try:
-            loaded_presets = json.load(file)
-            buttonList.extend(loaded_presets)
+            with open("server/savedPresets.json", "r") as file:
+                loaded_presets = json.load(file)
+                buttonList.extend(loaded_presets)
         except:
             pass
 
