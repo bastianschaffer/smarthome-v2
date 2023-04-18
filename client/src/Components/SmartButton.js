@@ -40,7 +40,7 @@ function SmartButton({buttonObj, setButtonList}) {
       else{
         setButtonList(bl => bl.map(b => {
           var tb = buttonObj.toggledButtons.find(x => x.title === b.title);
-          return tb !== undefined ? tb : (b.title === buttonObj.title ? {...b, toggled: true} : {...b, toggled: false})
+          return tb !== undefined ? {...tb, toggled: true} : (b.title === buttonObj.title ? {...b, toggled: true} : {...b, toggled: false})
         }));
       }
     }

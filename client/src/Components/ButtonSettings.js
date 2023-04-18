@@ -26,8 +26,13 @@ function ButtonSettings({buttonObj, setButtonList}) {
   function postSelectedAnim(anim){
 
     postMsg("setAnim",  {"btnTitle" : buttonObj.title, 
-                        "animTitle" : anim,
-                        ...(anim === "colorpicker" && { selectedColor: selectedColor })});
+                        "animTitle" : anim});
+  }
+
+  function postColor(color){
+    postMsg("setColor",  {"btnTitle" : buttonObj.title, 
+                        "animTitle" : "colorpicker",
+                        "selectedColor": color});
   }
 
    function handleSelectedAnimChange(newObj) {
@@ -57,12 +62,17 @@ function ButtonSettings({buttonObj, setButtonList}) {
 
   function handleColorPickerUpdate(newColor){
     setSelectedColor(newColor);
-    postSelectedAnim(selectedAnim.value);
+    postColor(newColor);
   }
 
   function handleCancelBtn(){
     setButtonList(bl => bl.map(b => b === buttonObj ? {...b, openedSettings: false} : b));
-    postSelectedAnim(buttonObj.selectedAnim);
+    if(buttonObj.selectedAnim === "colorpicker"){
+      postColor(buttonObj.selectedColor)
+    }else{
+      postSelectedAnim(buttonObj.selectedAnim);
+    }
+    
   }
 
 

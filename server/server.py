@@ -1,11 +1,16 @@
 from flask import Flask, request
 import json
+from arduino_comm import NRF_comm, radio_comm
 
 app = Flask(__name__)
 
-buttonList = [{"title" : "led1", "type" : "led", "toggled" : False, "selectedAnim" : "Animation 1", "selectedColor" : "#ffffff"},
-              {"title" : "led2", "type" : "led", "toggled" : False, "selectedAnim" : "Animation 2", "selectedColor" : "#ffffff"}, 
-              {"title" : "light 1", "type" : "light", "toggled" : False}]
+arduino_comms = []
+
+buttonList = [{"title" : "led wall", "type" : "led", "toggled" : False, "selectedAnim" : "Animation 1", "selectedColor" : "#ffffff", "comm_type": "NRF", "rPipe": 0xF0F0F0F001, "wPipe" : 0xF0F0F0F002},
+              {"title" : "led desk", "type" : "led", "toggled" : False, "selectedAnim" : "Animation 2", "selectedColor" : "#ffffff", "comm_type": "NRF","rPipe": 0xF0F0F0F011, "wPipe" : 0xF0F0F0F012}, 
+              {"title" : "light main", "type" : "light", "toggled" : False, "comm_type": "radio", "rfid": "10001000100010001000"},
+              {"title" : "light desk", "type" : "light", "toggled" : False, "comm_type": "radio", "rfid": "01000100010001000100"},
+              {"title" : "light bed", "type" : "light", "toggled" : False, "comm_type": "radio", "rfid": "00100010001000100010"}]
 
 animationList = [{"title" : "Animation 1"}, {"title" : "Animation 2"}, {"title" : "colorpicker"}]
 
@@ -35,54 +40,83 @@ def find_equals(list, key, value):
             return elem
     return {}
 
+def send_arduino_msg(button, msg):
+    find_equals(arduino_comms, "title", button["title"])["comm"].send(msg)
+    
+    #TODO think of msg format for arduino messages (click, anim, color) and send it
+    #TODO put comm-pipe-number into buttonlist declaration
+    #TODO send RF directly from raspberrypi https://www.einplatinencomputer.com/raspberry-pi-433-mhz-funksteckdose-schalten/
+    #TODO make arduino code (put it into arduino folder)
+    #TODO make README.md with helpful commands/ instructions for future-me
+    
+def set_button_state(button, state):
+    button["toggled"] = state
+    send_arduino_msg(button, {"actionType": "setToggled", "state": state })
+
+    return button
+    
+
+def set_led_anim(button, anim):
+    button["selectedAnim"] = anim
+    send_arduino_msg(button, {"actionType": "setAnim", "anim": anim})
+
+    return button
+
+def set_led_color(button, color):
+    button["selectedColor"] = color
+    send_arduino_msg(button, {"actionType": "setColor", "color": color})
+
+    return button
+
 def handle_user_input(input):
     print("received user input: ", input )
 
     msgContent = input["content"]
 
-    match input["msgType"]:
-        case "click":
+    msgType = input["msgType"]
+    if msgType == "click":
             button = find_equals(buttonList, "title" ,msgContent["btnTitle"])
-            button["toggled"] = not button["toggled"]
+            new_state = not button["toggled"]
+            button["toggled"] = new_state
+            button = set_button_state(button, new_state)
 
             if(button["type"] == "preset"):
                 for b in buttonList:
                     if any(x["title"] == b["title"] for x in button["toggledButtons"]):
-                        b["toggled"] = True
-                    elif b["title"] != button["title"]:
-                        b["toggled"] = False
+                        b = set_button_state(b, True)
+                    elif b["title"] != button["title"] and b["toggled"] == True:
+                        b = set_button_state(b, False)
 
             else:
                 for b in buttonList:
-                    if b["type"] == "preset":
-                        b["toggled"] = False
+                    if b["type"] == "preset" and b["toggled"] == True:
+                        b = set_button_state(b, False)
 
 
-            #TODO send click to arduino
-
-        case "setAnim":
+    elif msgType ==  "setAnim":
             button = find_equals(buttonList, "title" , msgContent["btnTitle"])
-            button["selectedAnim"] = msgContent["animTitle"]
-            
-            if msgContent["animTitle"] == "colorpicker":    
-                button["selectedColor"] = msgContent["selectedColor"]
-            
-            #TODO send anim to arduino
+            new_anim = msgContent["animTitle"]
+            button = set_led_anim(button, new_anim)
 
-        case "renamePreset":
+    elif msgType == "setColor":
+        button = find_equals(buttonList, "title" , msgContent["btnTitle"])
+        button = set_led_color(button, msgContent["selectedColor"])
+            
+            
+    elif msgType == "renamePreset":
             button = find_equals(buttonList, "title", msgContent["title"])
             button["title"] = msgContent["newTitle"]
             save_presets()
 
-        case "createPreset":
+    elif msgType == "createPreset":
             buttonList.append(msgContent)
             save_presets()
 
-        case "deletePreset":
-            buttonList.remove(find_equals(buttonList, "title", msgContent["title"] ))
+    elif msgType == "deletePreset":
+            buttonList.remove(find_equals(buttonList, "title", msgContent["title"]))
             save_presets()
 
-        case "specialTogglePreset": # occurs when e.g. color/ animation is changed while a preset is toggled so the preset must be set to untoggled
+    elif msgType == "specialTogglePreset": # occurs when e.g. color/ animation is changed while a preset is toggled so the preset must be set to untoggled
             button = find_equals(buttonList, "title", msgContent["title"])
             button["toggled"] = False
 
@@ -105,11 +139,20 @@ def click():
     return {}
     
 
-if __name__ == "__main__":
+if __name__ == "__main__":      
 
     load_presets(buttonList)
+    radio_comm.static_init()
     print(buttonList)
 
+    for button in buttonList:
+        comm = None
+        if(button["comm_type"] == "NRF"):
+            comm = NRF_comm(button["rPipe"], button["wPipe"])
+        else:
+            comm = radio_comm(button["rfid"])
+
+        arduino_comms.append({"title" : button["title"], "comm" : comm})
 
     
     app.run(debug=True)
