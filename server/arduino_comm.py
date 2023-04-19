@@ -1,26 +1,25 @@
 import time
-#from RF24 import *
+from RF24 import *
 #from rpi_rf import RFDevice
 
 class NRF_comm:
     
 
     def __init__(self, reading_pipe, writing_pipe):
-        self.radio = None
-        self.writing_pipe = None    #[0xF0F0F0F0E1, 0xF0F0F0F0D2]
+        #self.radio = None
+        #self.writing_pipe = None    #[0xF0F0F0F0E1, 0xF0F0F0F0D2]
         self.payload_size = 32
-        
         self.writing_pipe = writing_pipe
 
-        #self.radio = RF24(17, 0)
-        #self.radio.begin()
-        #self.radio.enableDynamicPayloads()
-        #self.radio.setRetries(5,15)
-        #self.radio.openWritingPipe(writing_pipe)
+        self.radio = RF24(17, 0)
+        self.radio.begin()
+        self.radio.enableDynamicPayloads()
+        self.radio.setRetries(5,15)
+        self.radio.openWritingPipe(writing_pipe)
 
     def send(self, code):
-        #self.radio.stopListening()
-        #self.radio.write(bytes(code[:payload_size], encoding="utf-8"))
+        self.radio.stopListening()
+        self.radio.write(bytes(code[:payload_size], encoding="utf-8"))
         print("senging NRF: " , code)
 
 

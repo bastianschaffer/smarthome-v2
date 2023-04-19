@@ -7,7 +7,7 @@ codeOff     = "Turn LED off"
 # RPi Alternate, with SPIDEV - Note: Edit RF24/arch/BBB/spi.cpp and  set 'this->device = "/dev/spidev0.0";;' or as listed in /dev
 radio = RF24(17, 0);
  
-pipes = [0xF0F0F0F0E1, 0xF0F0F0F0D2]
+pipes = [0xF0F0F0F0C3, 0xF0F0F0F03C]
 payload_size = 32
 millis = lambda: int(round(time.time() * 1000))
  
