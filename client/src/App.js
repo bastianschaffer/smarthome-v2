@@ -5,10 +5,12 @@ import './App.css'
 export function postMsg(msgType, content){
     const requestOptions = {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        mode: 'cors',
+        headers: { 
+            'Content-Type': 'application/json'        },
         body: JSON.stringify({ msgType: msgType, content: content })
     };
-    fetch('/userInput', requestOptions)
+    fetch('http://localhost:5000/userInput', requestOptions)
 }
 
 function App() {
@@ -27,7 +29,7 @@ function App() {
     }
 
     useEffect(() => {
-        fetch("/buttons").then(
+        fetch("http://localhost:5000/buttons").then(
             res => res.json()
         ).then(
             fetchedButtonList => {

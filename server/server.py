@@ -1,13 +1,15 @@
-from flask import Flask, request
+from flask import Flask, request, Response
+from flask_cors import CORS
 import json
 from arduino_comm import NRF_comm, radio_comm
 
 app = Flask(__name__)
+CORS(app)
 
 arduino_comms = []
 
-buttonList = [{"title" : "led wall", "type" : "led", "toggled" : False, "selectedAnim" : "Animation 1", "selectedColor" : "#ffffff", "comm_type": "NRF", "rPipe": 0xF0F0F0F001, "wPipe" : 0xF0F0F0F002},
-              {"title" : "led desk", "type" : "led", "toggled" : False, "selectedAnim" : "Animation 2", "selectedColor" : "#ffffff", "comm_type": "NRF","rPipe": 0xF0F0F0F011, "wPipe" : 0xF0F0F0F012}, 
+buttonList = [{"title" : "led wall", "type" : "led", "toggled" : False, "selectedAnim" : "Animation 1", "selectedColor" : "#ffffff", "comm_type": "NRF", "rPipe": "0xF0F0F0F001", "wPipe" : "0xF0F0F0F002"},
+              {"title" : "led desk", "type" : "led", "toggled" : False, "selectedAnim" : "Animation 2", "selectedColor" : "#ffffff", "comm_type": "NRF","rPipe": "0xF0F0F0F011", "wPipe" : "0xF0F0F0F012"}, 
               {"title" : "light main", "type" : "light", "toggled" : False, "comm_type": "radio", "rfid": "10001000100010001000"},
               {"title" : "light desk", "type" : "light", "toggled" : False, "comm_type": "radio", "rfid": "01000100010001000100"},
               {"title" : "light bed", "type" : "light", "toggled" : False, "comm_type": "radio", "rfid": "00100010001000100010"}]
@@ -42,12 +44,14 @@ def find_equals(list, key, value):
 
 def send_arduino_msg(button, msg):
     find_equals(arduino_comms, "title", button["title"])["comm"].send(msg)
-    
+
     #TODO think of msg format for arduino messages (click, anim, color) and send it
     #TODO put comm-pipe-number into buttonlist declaration
     #TODO send RF directly from raspberrypi https://www.einplatinencomputer.com/raspberry-pi-433-mhz-funksteckdose-schalten/
     #TODO make arduino code (put it into arduino folder)
     #TODO make README.md with helpful commands/ instructions for future-me
+    #TODO handle stop ongoing retry sending again during retry
+    #TODO dont retry color
     
 def set_button_state(button, state):
     button["toggled"] = state
@@ -58,7 +62,7 @@ def set_button_state(button, state):
 
 def set_led_anim(button, anim):
     button["selectedAnim"] = anim
-    send_arduino_msg(button, {"actionType": "setAnim", "anim": anim})
+    send_arduino_msg(button, {"actionType": "setAnim", "anim": animationList.index({"title" : anim})})
 
     return button
 
@@ -140,10 +144,10 @@ def click():
     
 
 if __name__ == "__main__":      
-
     load_presets(buttonList)
+
+    NRF_comm.static_init()
     radio_comm.static_init()
-    print(buttonList)
 
     for button in buttonList:
         comm = None
@@ -154,5 +158,4 @@ if __name__ == "__main__":
 
         arduino_comms.append({"title" : button["title"], "comm" : comm})
 
-    
-    app.run(debug=True)
+    app.run(debug=True, host="127.0.0.1", port=5000)

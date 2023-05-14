@@ -1,0 +1,130 @@
+#include "nRF24L01.h"
+#include "RF24.h"
+#include <FastLED.h>
+
+
+#define NUM_LEDS 15
+#define DATA_PIN 3
+CRGB leds[NUM_LEDS];
+//
+// Hardware configuration
+//
+ 
+ 
+const int max_payload_size = 32;
+String codeOn = "Turn LED on";
+String codeOff = "Turn LED off";
+int led_status = LOW;
+ 
+// Set up nRF24L01 radio on SPI bus plus pins 7 & 8
+ 
+RF24 radio(9,10);
+ 
+//
+// Topology
+//
+ 
+// Radio pipe addresses for the 2 nodes to communicate.
+const uint64_t pipes[2] = { 0xF0F0F0F011LL, 0xF0F0F0F012LL };
+ 
+//
+// Payload
+//
+ 
+char receive_payload[max_payload_size+1]; // +1 to allow room for a terminating NULL char
+ 
+void setup(void)
+{
+
+  FastLED.addLeds<WS2812B, DATA_PIN, RGB>(leds, NUM_LEDS);
+  
+  //
+  // Print preamble
+  //
+ 
+  Serial.begin(115200);
+  
+ 
+  //
+  // Setup and configure rf radio
+  //
+ 
+  radio.begin();
+ 
+  // enable dynamic payloads
+  radio.enableDynamicPayloads();
+ 
+  // optionally, increase the delay between retries & # of retries
+  radio.setRetries(5,15);
+ 
+  //
+  // Open pipes to other nodes for communication
+  //
+  
+  radio.openWritingPipe(pipes[1]);
+  radio.openReadingPipe(1,pipes[0]);
+ 
+  //
+  // Start listening
+  //
+ 
+  radio.startListening();
+ 
+}
+ 
+void loop(void)
+{
+ 
+  //
+  // Pong back role.  Receive each packet, dump it out, and send it back
+  //
+ 
+  // if there is data ready
+  while ( radio.available() )
+  {
+ 
+    // Fetch the payload, and see if this was the last one.
+    uint8_t len = radio.getDynamicPayloadSize();
+    
+    // If a corrupt dynamic payload is received, it will be flushed
+    if(!len){
+      continue;
+    }
+    
+    radio.read( receive_payload, len );
+ 
+    // Put a zero at the end for easy printing
+    receive_payload[len] = 0;
+
+    leds[0] = CRGB::Red;
+    FastLED.show();
+    delay(3000);
+    leds[0] = CRGB::Black;
+    FastLED.show();
+ 
+    // Spew it
+    Serial.print(F("Got response size="));
+    Serial.print(len);
+    Serial.print(F(" value="));
+    Serial.println(receive_payload);
+ 
+    // First, stop listening so we can talk
+    radio.stopListening();
+ 
+    // Send the final one back.
+    radio.write( receive_payload, len );
+    Serial.println(F("Sent response."));
+ 
+    if (codeOn.equals(String(receive_payload))) {
+      led_status = HIGH;
+      Serial.println("LED turned on.");
+    } else if (codeOff.equals(String(receive_payload))) {
+      led_status = LOW;
+      Serial.println("LED turned off.");
+    }
+ 
+    // Now, resume listening so we catch the next packets.
+    radio.startListening();
+  }
+}
+// vim:cin:ai:sts=2 sw=2 ft=cpp

@@ -13,7 +13,7 @@ function ButtonSettings({buttonObj, setButtonList}) {
   const [selectedColor, setSelectedColor] = useState(buttonObj.selectedColor)
 
   useEffect(() => {
-    fetch("/animations").then(
+    fetch("http://localhost:5000/animations").then(
         res => res.json()
     ).then(
       animationList => {
