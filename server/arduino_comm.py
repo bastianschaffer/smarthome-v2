@@ -14,7 +14,7 @@ class NRF_comm:
     payload_size = 8
     reading_pipe_number = 1
 
-    start_send_time = None
+    start_send_time = 0
     
 
     @staticmethod
@@ -27,6 +27,7 @@ class NRF_comm:
     def static_init():
         NRF_comm.radio = RF24(NRF_comm.chip_enable_pin, NRF_comm.chip_select_pin)
         NRF_comm.radio.begin()
+        NRF_comm.radio.setPALevel(RF24_PA_MAX)
         NRF_comm.radio.enableDynamicPayloads()
         NRF_comm.radio.setRetries(5,15)
 
@@ -65,16 +66,15 @@ class NRF_comm:
         
         if retries == 0:
             now = millis()
+            if (now - NRF_comm.start_send_time) < 10 and msg["actionType"] == "setColor":
+                return
             NRF_comm.start_send_time = now
             self.start_send_time = now
             local_start_time = now
 
             NRF_comm.radio.flush_rx()
+            NRF_comm.radio.flush_tx()
         else:
-            #if NRF_comm.start_send_time != self.start_send_time:
-            #    return
-            #if local_start_time != self.start_send_time:
-            #    return
             if local_start_time != NRF_comm.start_send_time:
                 return
         
@@ -82,11 +82,10 @@ class NRF_comm:
         code = self.translate_msg(msg)
 
         NRF_comm.radio.stopListening()
-        NRF_comm.radio.openWritingPipe(self.hexstr_to_int(self.writing_pipe))#self.hexstr_to_bytes(self.writing_pipe)
+        NRF_comm.radio.openWritingPipe(self.hexstr_to_int(self.writing_pipe))
 
-        #print("senging NRF: " , code, " | ", self.reading_pipe)
 
-        NRF_comm.radio.write(bytes(code[:NRF_comm.payload_size], encoding="utf-8"))
+        NRF_comm.radio.write(bytes(code[:NRF_comm.payload_size], encoding="utf-8"), 32)
 
         retry = msg["actionType"] != "setColor"
         if not retry:
@@ -102,10 +101,8 @@ class NRF_comm:
         if timed_out:
             self.send(msg, retries+1, local_start_time)
         else:
-            len = NRF_comm.radio.getDynamicPayloadSize()
-            response = NRF_comm.radio.read(len).decode('utf-8')
-            
-            if self.reading_pipe[10:12] == response:
+            response = NRF_comm.radio.read(1)
+            if bytearray.fromhex(self.reading_pipe[10:12] ) == response:
                 print("Msg was received by Arduino.")
             else:
                 self.send(msg, retries+1, local_start_time)
@@ -117,7 +114,7 @@ class NRF_comm:
 
 class radio_comm:
     button_on = "1000"
-    button_off = "0000"
+    button_off = "0111"
 
     max_retries = 10
     data_pin = 23
@@ -139,10 +136,7 @@ class radio_comm:
         
     def send_radio_msg(self, msg):
         int_msg = int(msg, 2)
-        #print("sending radio: ", msg, " | int: ", int_msg)
         radio_comm.rfdevice.tx_code(int_msg, radio_comm.protocol, radio_comm.pulse_length, 24)
-        
-
 
     def send_toggle_on(self):
         msg = f"{self.radio_ID}{radio_comm.button_on}"
@@ -161,7 +155,7 @@ class radio_comm:
         radio_comm.start_send_time = now
         local_start_send_time = now
         
-        for i in range(radio_comm.max_retries): # assuming i get function mode 3 of the 433mhz relay to work
+        for i in range(radio_comm.max_retries):
             if radio_comm.start_send_time != local_start_send_time:
                 return
 

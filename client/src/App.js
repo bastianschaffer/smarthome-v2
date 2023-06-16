@@ -10,7 +10,7 @@ export function postMsg(msgType, content){
             'Content-Type': 'application/json'        },
         body: JSON.stringify({ msgType: msgType, content: content })
     };
-    fetch('http://localhost:5000/userInput', requestOptions)
+    fetch('http://192.168.178.29:5000/userInput', requestOptions)
 }
 
 function App() {
@@ -29,7 +29,7 @@ function App() {
     }
 
     useEffect(() => {
-        fetch("http://localhost:5000/buttons").then(
+        fetch("http://192.168.178.29:5000/buttons").then(
             res => res.json()
         ).then(
             fetchedButtonList => {

@@ -3,17 +3,20 @@
 #include <FastLED.h>
 
 
-#define NUM_LEDS 15
+#define NUM_LEDS 60
 #define DATA_PIN 2
 
 #define NRF_CHIP_ENABLE_PIN 9
 #define NRF_CHIP_SELECT_PIN 10
-const uint64_t writingPipe = 0xF0F0F0F011LL; //equals reading pipe of reaspberrypi
-const uint64_t readingPipe = 0xF0F0F0F012LL; //equals reading pipe of reaspberrypi
-const char* response = "11"; //must be last 2 bytes of first pipe
+const uint64_t writingPipe = 0xF0F0F0F001LL; //equals reading pipe of reaspberrypi
+const uint64_t readingPipe = 0xF0F0F0F002LL; //equals writing pipe of reaspberrypi
+const char* response = "01"; //must be last 2 bytes of first pipe
 
 
 CRGB leds[NUM_LEDS];
+CRGB set_leds[NUM_LEDS];
+
+bool isToggledOn = false;
 
 // Set up nRF24L01 radio on SPI bus plus pins 7 & 8
 RF24 radio(NRF_CHIP_ENABLE_PIN,NRF_CHIP_SELECT_PIN);
@@ -40,12 +43,14 @@ void setup(void)
 
 }
 
+
 void handleReceivedMsg()
 {
   char prefix = receive_payload[0];
   if(prefix == '0')
   {
     Serial.println("handle toggle...");
+    isToggledOn = receive_payload[1] == '1' ? true : false;
   }
   else if(prefix == '1')
   {
@@ -61,13 +66,18 @@ void handleReceivedMsg()
     String b = payload_string.substring(6, 8);
     String color = "0x" + g + r + b; // because of GRB ordering
     
-    leds[0] = strtol(&color[0], NULL, 0);
-    Serial.println(color);
-    FastLED.show();
+    for(int i = 0; i < NUM_LEDS; i++){
+      set_leds[i] = strtol(&color[0], NULL, 0);
+    }    
   }
 }
 
-
+void doLightAction(){
+  for(int i = 0; i < NUM_LEDS; i++){
+    leds[i] = isToggledOn ? set_leds[i] : CRGB::Black;
+  }
+  FastLED.show();
+}
  
 void loop(void)
 {
@@ -91,5 +101,6 @@ void loop(void)
  
     radio.startListening();
 
+    doLightAction();
   }
 }

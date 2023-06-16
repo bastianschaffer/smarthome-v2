@@ -7,7 +7,7 @@
       "localhost",
       ".localhost"
     ],
-    "proxy": "https://localhost:5000/"
+    "proxy": "http://192.168.178.29:5000/"
   },
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
