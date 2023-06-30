@@ -1,0 +1,138 @@
+#include "nRF24L01.h"
+#include "RF24.h"
+#include <FastLED.h>
+
+#define NUM_LEDS 132
+#define DATA_PIN 3
+
+
+#define NRF_CHIP_ENABLE_PIN 9
+#define NRF_CHIP_SELECT_PIN 10
+
+const uint64_t writingPipe = 0xF0F0F0F011LL; //equals reading pipe of reaspberrypi
+const uint64_t readingPipe = 0xF0F0F0F012LL; //equals writing pipe of reaspberrypi
+const byte response = writingPipe; //will be least significant byte of writing pipe (e.g. 0x01 here)
+
+CRGB leds[NUM_LEDS];
+CRGB set_leds[NUM_LEDS];
+
+bool isToggledOn = false;
+bool sendAnswer = false;
+
+
+// Set up nRF24L01 radio on SPI bus plus pins 7 & 8
+RF24 radio(NRF_CHIP_ENABLE_PIN,NRF_CHIP_SELECT_PIN);
+
+const int max_payload_size = 32;
+char receive_payload[max_payload_size+1]; // +1 to allow room for a terminating NULL char
+
+
+void setup(void)
+{
+
+  FastLED.addLeds<WS2812B, DATA_PIN, RGB>(leds, NUM_LEDS);
+ 
+  Serial.begin(9600);
+  Serial.println("init");
+  radio.begin();
+  radio.setPALevel(RF24_PA_MAX);
+ 
+  // optionally, increase the delay between retries & # of retries
+  radio.enableDynamicPayloads();
+  radio.setRetries(5,15);
+  radio.openWritingPipe(writingPipe);
+  radio.openReadingPipe(1,readingPipe);
+  radio.startListening();
+  radio.powerUp();
+
+
+}
+ 
+
+void handleReceivedMsg()
+{
+  sendAnswer = true;
+  
+  char prefix = receive_payload[0];
+  Serial.print("received: ");
+  Serial.println(&receive_payload[0]);
+  if(prefix == '0')
+  {
+    Serial.println("handle toggle...");
+    isToggledOn = receive_payload[1] == '1' ? true : false;
+  }
+  else if(prefix == '1')
+  {
+    Serial.print("Set Anim: ");
+    char anim = receive_payload[1];
+    Serial.println(anim);
+  }
+  else if(prefix == '2')
+  {
+    sendAnswer = false;
+    String payload_string = (String)receive_payload;
+    String r = payload_string.substring(2, 4);// assuming received payload like "2#ffffff"
+    String g = payload_string.substring(4, 6);
+    String b = payload_string.substring(6, 8);
+    String color = "0x" + g + r + b + "/0"; // because of GRB ordering
+    
+    CRGB crgbColor = strtol(&color[0], NULL, 16);
+    for(int i = 0; i < NUM_LEDS; i++)
+    {
+      set_leds[i] = crgbColor;
+    }  
+  }
+}
+
+void doLightAction()
+{
+  for(int i = 0; i < NUM_LEDS; i++)
+  {
+    leds[i] = isToggledOn ? set_leds[i] : CRGB::Black;
+  }
+  
+  Serial.println("showing");
+  FastLED.show();
+}
+ 
+void loop(void)
+{  
+  radio.startListening();
+  delay(5);
+  if(radio.available())
+  {
+    while(radio.available())
+    {
+      Serial.println("radio is available");
+      //uint8_t len = 32;//radio.getDynamicPayloadSize();
+      uint8_t len = radio.getDynamicPayloadSize();
+      radio.read( receive_payload, len );
+      receive_payload[len] = 0;
+  
+      handleReceivedMsg();
+      doLightAction();
+    }
+    radio.flush_rx();
+  }
+  delay(5);
+
+  radio.stopListening();
+
+
+  if(sendAnswer)
+  {
+    radio.stopListening();
+    radio.flush_tx();
+    delay(5);
+
+    for(int i = 0; i < 10; i++)
+    {
+      char resp[2] = {response}; 
+      radio.write(resp,1 );
+    }
+    Serial.println(F("Sent response."));
+
+    sendAnswer = false;
+  }
+
+}
