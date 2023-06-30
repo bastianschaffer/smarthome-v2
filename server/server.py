@@ -158,6 +158,6 @@ if __name__ == "__main__":
 
         arduino_comms.append({"title" : button["title"], "comm" : comm})
     #192.168.178.29
-    app.run(debug=True, host="localhost", port=5000)
+    app.run(debug=True, host="192.168.178.29", port=5000)
 
     #app.run(debug=True, host="127.0.0.1", port=5000)
