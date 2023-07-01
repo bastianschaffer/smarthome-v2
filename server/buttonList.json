@@ -1,0 +1,5 @@
+[{"title" : "led-wall", "type" : "led", "toggled" : "False", "selectedAnim" : "Animation 1", "selectedColor" : "#ffffff", "comm_type": "NRF", "rPipe": "0xF0F0F0F001", "wPipe" : "0xF0F0F0F002"},
+{"title" : "led-desk", "type" : "led", "toggled" : "False", "selectedAnim" : "Animation 2", "selectedColor" : "#ffffff", "comm_type": "NRF","rPipe": "0xF0F0F0F011", "wPipe" : "0xF0F0F0F012"}, 
+{"title" : "light-main", "type" : "light", "toggled" : "False", "comm_type": "radio", "rfid": "10001000100010001000"},
+{"title" : "light-desk", "type" : "light", "toggled" : "False", "comm_type": "radio", "rfid": "01000100010001000100"},
+{"title" : "light-bed", "type" : "light", "toggled" : "False", "comm_type": "radio", "rfid": "00100010001000100010"}]

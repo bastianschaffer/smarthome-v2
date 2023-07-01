@@ -8,11 +8,15 @@ CORS(app)
 
 arduino_comms = []
 
-buttonList = [{"title" : "led wall", "type" : "led", "toggled" : False, "selectedAnim" : "Animation 1", "selectedColor" : "#ffffff", "comm_type": "NRF", "rPipe": "0xF0F0F0F001", "wPipe" : "0xF0F0F0F002"},
-              {"title" : "led desk", "type" : "led", "toggled" : False, "selectedAnim" : "Animation 2", "selectedColor" : "#ffffff", "comm_type": "NRF","rPipe": "0xF0F0F0F011", "wPipe" : "0xF0F0F0F012"}, 
-              {"title" : "light main", "type" : "light", "toggled" : False, "comm_type": "radio", "rfid": "10001000100010001000"},
-              {"title" : "light desk", "type" : "light", "toggled" : False, "comm_type": "radio", "rfid": "01000100010001000100"},
-              {"title" : "light bed", "type" : "light", "toggled" : False, "comm_type": "radio", "rfid": "00100010001000100010"}]
+
+buttonList = None
+
+def loadButtonList():
+    returnList = None
+    with open("buttonList.json", 'r') as buttonFile:
+       returnList = json.load(buttonFile)
+       
+    return returnList
 
 animationList = [{"title" : "Animation 1"}, {"title" : "Animation 2"}, {"title" : "colorpicker"}]
 
@@ -143,7 +147,9 @@ def click():
     return {}
     
 
-if __name__ == "__main__":      
+if __name__ == "__main__":  
+    buttonList = loadButtonList()    
+    print(buttonList[0]["toggled"])
     load_presets(buttonList)
 
     NRF_comm.static_init()
