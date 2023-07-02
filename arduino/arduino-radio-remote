@@ -1,0 +1,48 @@
+#include <RCSwitch.h>
+
+#define BTN_PIN 2
+
+bool previouslyPressed = false;
+bool toggled = false;
+
+String button_on = "1000";
+String button_off = "0111";
+String rfid = "10001000100010001000";
+
+RCSwitch mySwitch = RCSwitch();
+void setup() {
+  Serial.begin(9600);
+  pinMode(BTN_PIN, INPUT);
+  mySwitch.enableTransmit(10);  // Der Sender wird an Pin 10 angeschlossen
+}
+
+
+unsigned long stringToInt(String s){
+  unsigned long value = 0;
+  
+  for (int i=0; i< s.length(); i++){  
+    value *= 2; 
+    if (s.charAt(i) == '1') value++;
+  }
+  return value;
+}
+void loop() {
+  
+  if(digitalRead(BTN_PIN) == HIGH && !previouslyPressed){
+    previouslyPressed = true;
+    toggled = !toggled;
+
+    String newState = toggled ? button_off : button_on;
+    unsigned long msg = stringToInt(rfid + newState);
+    //mySwitch.send(msg, 24); 
+    Serial.print("sent: ");
+    Serial.print(rfid + newState);
+    Serial.print(" | int: ");
+    Serial.println(msg);
+    delay(1000); 
+  }else if (digitalRead(BTN_PIN) == LOW && previouslyPressed){
+    previouslyPressed = false;
+  }
+  
+  
+} 
