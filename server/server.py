@@ -13,7 +13,7 @@ buttonList = None
 
 def loadButtonList():
     returnList = None
-    with open("buttonList.json", 'r') as buttonFile:
+    with open("server/buttonList.json", 'r') as buttonFile:
        returnList = json.load(buttonFile)
        
     return returnList
